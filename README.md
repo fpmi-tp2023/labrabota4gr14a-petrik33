@@ -182,3 +182,155 @@ Grant Allen, Mike Owens. The Definitive Guide to SQLite (Second Edition) — 201
 ## Usage
 
 Author: Tsimafei Petrykevich - Group №14
+
+## Key Questions
+
+### 1. Перечислите способы создания базы данных sqlite
+
+* `sqlite3 <DatabaseName>.db`
+* Импорт базы данных из .sql файла
+* `touch <DatabaseName>.db`
+* С помощью графического интерфейса, например “DB Browser for SQLite”
+
+### 2. С помощью какой команды в консоли sqlite можем просмотреть список баз данных и подключенных файлов баз данных?
+
+```sqlite
+.databases
+```
+
+### 3. Приведите перечень команд для экспорта данных из таблицы базы данных в файл с расширением .csv
+
+```sqlite
+.headers on
+.mode csv
+.output <FileName>.csv
+SELECT * FROM <TableName>;
+.output stdout
+```
+
+### 4. Приведите перечень команд для экспорта отдельной таблицы и всей базы данных в файл с расширением .sql и сжатый файл, например в файл с расширением .sql.tgz
+
+#### Вся база данных:
+
+```sqlite
+sqlite3 my_database.sqlite .dump my_table > my_table.sql
+```
+
+#### Таблица:
+
+```
+sqlite3 my_database.sqlite .dump > my_database.sql
+```
+
+#### Сжатие:
+
+```sqlite
+tar -czf my_database.sql.tgz my_database.sql
+```
+
+### 5. Как вывести из таблицы данные по строкам и по столбцам?
+
+```sqlite
+.mode column
+.headers on
+Select <Column1,...,ColumnM> from <TableName>
+```
+
+### 6. Для чего используется команда .headers в консоли sqlite?
+
+Для вывода названий столбцов таблицы.
+ 
+### 7. Какая команды используется для вывода настроек окружения в sqlite?
+
+```sqlie
+.show
+```
+
+### 8. С помощью какой команды выводится список таблиц базы данных в консоли sqlite?
+
+```sqlite
+.tables
+```
+
+### 9. Приведите пример запроса выборки из 2-х таблиц
+
+```sqlite
+select * from products inner join categories on products.category_id = categories.id;
+```
+### 10. Приведите пример запроса для обновления данных в строках таблицы в зависимости от значения определённого поля
+
+```sqlite
+select * from products where id=2;
+```
+
+### 11. Приведите пример функции, которая открывает соединение с файлом базы данных SQLite и возвращает объект соединения с базой данных, который будет использоваться другими функциями SQLite?
+
+```c
+rc = sqlite3_open("test.db", &db);
+```
+
+### 12. Приведите пример синтаксиса функции sqlite3_exec и объясните результат выполнения
+
+```c
+rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+```
+
+Данная функция передаст в rc код ошибки SQLite. В случае успешного выполнения запроса , функция вернет код 0.
+Если в запросе была ошибка, то sqlite3_exec() вернет код ошибки, а содержимое переменной zErrMsg будет установлено на соответствующее сообщение об ошибке. 
+
+### 13. Какая функция закрывает соединение с базой данных, ранее открытое вызовом sqlite3_open? Приведите пример синтаксиса
+
+```c
+sqlite3_close(db);
+```
+
+### 14. Приведите пример фрагмента кода на языке C для создания таблицы в базе данных sqlite и объясните его
+
+```c
+/* Create SQL statement */
+sql = "CREATE TABLE COMPANY("  \
+   "ID INT PRIMARY KEY     NOT NULL," \
+   "NAME           TEXT    NOT NULL," \
+   "AGE            INT     NOT NULL," \
+   "ADDRESS        CHAR(50)," \
+   "SALARY         REAL );";
+```
+
+### 15. Приведите пример фрагмента кода на языке C для вставки данных в таблицу в базе данных sqlite и объясните его
+
+```c
+/* Create SQL statement */
+sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "  \
+      "VALUES (1, 'Paul', 32, 'California', 20000.00 ); " \
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "  \
+      "VALUES (2, 'Allen', 25, 'Texas', 15000.00 ); "     \
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)" \
+      "VALUES (3, 'Teddy', 23, 'Norway', 20000.00 );" \
+      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)" \
+      "VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00 );";
+```
+
+### 16. Приведите пример фрагмента кода на языке C выполнением AUTOCOMMIT и TRANSACTION и объясните в чем особенности использования их
+
+```c
+sqlite3 *db;
+sqlite3_open("my_database.db", &db);
+
+// AUTOCOMMIT enabled
+sqlite3_exec(db, "PRAGMA autocommit = ON;", NULL, NULL, NULL);
+
+// TRANSACTION begins
+sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
+
+// execute some SQL statements here
+
+// TRANSACTION ends
+sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
+```
+
+AUTOCOMMIT определяет, будут ли SQL-операции автоматически подтверждаться после их выполнения или нет.
+Если AUTOCOMMIT включен, каждая операция будет автоматически подтверждаться, что означает, что изменения будут сохранены в базе данных.
+Если выключен, изменения не будут автоматически сохранены в базе данных и будут потеряны при выходе из программы или при возникновении ошибки.
+
+TRANSACTION, с другой стороны, позволяет выполнять несколько операций одновременно и сохранять их все как одну транзакцию.
+Это полезно, например, при выполнении нескольких операций, которые должны быть успешно завершены все вместе или ни одна из них не должна быть сохранена.
